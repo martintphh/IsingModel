@@ -34,7 +34,7 @@ def time_plot(model, save_path=None, window=100):
     recommended_burn_in = max(burn_in_e_sweep,burn_in_m_sweep)
 
     print(f"estimated burn ins: t_e = {burn_in_e_sweep}, t_b = {burn_in_m_sweep}\n")
-    print(f"recommended burn in t = {recommended_burn_in}")
+    print(f"recommended burn: in t = {recommended_burn_in}")
 
     ax[0].plot(range(model.sweeps), e, label=r"$e(t)$", lw=0.7, alpha=0.25)
     ax[0].plot(t_smooth, e_smooth, label=r"moving average e(t)")
@@ -55,7 +55,8 @@ def time_plot(model, save_path=None, window=100):
     ax[0].set_title(r"Energy relaxation")
     ax[1].set_title(r"Magnetization relaxation")
 
-    plt.legend()
+    ax[0].legend()
+    ax[1].legend()
     if save_path:
         results_dir = os.path.join("..", "results")
         os.makedirs(results_dir, exist_ok=True)
