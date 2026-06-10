@@ -1,9 +1,8 @@
-#from src.ising_model import IsingMetropolis_numba
 from src.temperature_scan import temperature_scan
 from src.visualizations import temperature_scan_plot
 import argparse
 import numpy as np
-#import os
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("Tmin", help="the starting temperature of the scan", type=float)

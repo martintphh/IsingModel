@@ -97,7 +97,7 @@ class IsingMetropolis_numba:
             "mean_e2": np.mean(e**2),
             "mean_m": np.mean(m),
             "mean_m2": np.mean(m**2),
-            "mean_abs_m": np.mean(np.abs(m)),
+            "mean_abs_m": np.mean(np.abs(m))
         }
 
     
