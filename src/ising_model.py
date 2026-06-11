@@ -13,13 +13,13 @@ def calculate_E(N, J, mu, H, grid):
     return E
 
 
-
-
 @njit
-def run_simulation_numba(E, M, grid, T, J, mu, H, N, sweeps):
+def run_simulation_numba(E, M, grid, T, J, mu, H, N, sweeps, save_grids=False, save_every=1):
     energies = np.empty(sweeps)
     magnetizations = np.empty(sweeps)
     
+    grids = []
+    saved_sweeps = []
 
     for time_step in range(sweeps):
         for spin in range(N**2):
@@ -36,13 +36,17 @@ def run_simulation_numba(E, M, grid, T, J, mu, H, N, sweeps):
                 M -= 2 * old_spin
         energies[time_step] = E
         magnetizations[time_step] = M
+        if save_grids and (time_step + 1) % save_every == 0:
+            grids.append(grid.copy())
+            saved_sweeps.append(time_step + 1)
+            
 
-    return grid, E, M, energies, magnetizations
+    return grid, E, M, energies, magnetizations, grids, saved_sweeps
 
 
 
 class IsingMetropolis_numba:
-    def __init__(self, N: int, T: float, J: float, mu: float, H: float, initial_spin_down: float, sweeps: int):
+    def __init__(self, N: int, T: float, J: float, mu: float, H: float, initial_spin_down: float, sweeps: int, save_grids: bool, save_every: int =1):
         self.N = N
         self.T = T
         self.J = J 
@@ -50,7 +54,9 @@ class IsingMetropolis_numba:
         self.H = H 
         self.initial_spin_down = initial_spin_down
         self.sweeps = sweeps
-        self.beta = 1/T
+        self.save_grids = save_grids
+        self.saved_sweeps = []
+        self.save_every = save_every
 
         self.grid = self.initialize_grid()
         self.E = self.calculate_energy()
@@ -58,6 +64,7 @@ class IsingMetropolis_numba:
         self.grids = []
         self.energies = []
         self.magnetizations = []
+
         
         
 
@@ -66,7 +73,7 @@ class IsingMetropolis_numba:
 
 
     def run_simulation(self):
-        self.grid, self.E, self.M, self.energies, self.magnetizations = run_simulation_numba(
+        self.grid, self.E, self.M, self.energies, self.magnetizations, self.grids, self.saved_sweeps = run_simulation_numba(
             self.E,
             self.M,
             self.grid,
@@ -76,6 +83,8 @@ class IsingMetropolis_numba:
             self.H,
             self.N,
             self.sweeps,
+            self.save_grids,
+            self.save_every
         )
 
     def calculate_energy(self):

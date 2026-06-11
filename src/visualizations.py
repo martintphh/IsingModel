@@ -3,7 +3,7 @@ import matplotlib.animation as animation
 import numpy as np
 import os
 from .find_burn_in import *
-
+from tqdm import tqdm
 
 def time_plot(model, save_path=None, window=100):
     fig, ax = plt.subplots(1, 2, figsize=(12, 4), constrained_layout=True)
@@ -123,30 +123,49 @@ def temperature_scan_plot(temperatures, observables, save_path=None):
 
 
 
-def animate_ising(grids, interval=100, save=False):
+def animate_ising(grids, sweep_numbers=None, interval=100, save_path=None):
     fig, ax = plt.subplots()
-    
+
+    if sweep_numbers is None:
+        sweep_numbers = range(len(grids))
+
     im = ax.imshow(grids[0], vmin=-1, vmax=1)
-    ax.set_title("Ising Model Evolution")
+    title = ax.set_title(f"Sweep {sweep_numbers[0]}")
 
     def update(frame):
         im.set_data(grids[frame])
-        ax.set_title(f"Sweep {frame}")
-        return [im]
+        title.set_text(f"Sweep {sweep_numbers[frame]}")
+        return [im, title]
 
     ani = animation.FuncAnimation(
         fig,
         update,
         frames=len(grids),
         interval=interval,
-        blit=True
+        blit=False
     )
-    if save==True:
-        ani.save("ising4.gif", writer="pillow")
-    plt.show()
-    return ani
 
-#ani = animate_ising(grids)
-#from IPython.display import HTML
-#HTML(ani.to_jshtml())
+    if save_path:
+        results_dir = "results"
+        os.makedirs(results_dir, exist_ok=True)
+
+        total_frames = len(grids)
+
+        with tqdm(total=total_frames, desc="Saving animation") as pbar:
+
+            def progress_callback(current_frame, total_frames):
+                pbar.update(current_frame + 1 - pbar.n)
+
+            ani.save(
+                os.path.join(results_dir, f"{save_path}.gif"),
+                writer="ffmpeg",
+                fps=20,
+                progress_callback=progress_callback
+            )
+
+        print("Animation saved.")
+
+    plt.show()
+
+    return ani
     
