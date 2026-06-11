@@ -58,4 +58,4 @@ A simulation on a 64x64 grid at temperature 1.0 can be animated by
 
 ## License
 
-MIT License © 2025 Martin Tinhof
+MIT License © 2026 Martin Tinhof
